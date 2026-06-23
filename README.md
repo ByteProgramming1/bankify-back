@@ -1,22 +1,6 @@
-# Bankify Back — Módulo de Transferencias (Falla 4)
+# Bankify Back — Módulo de Transferencias 
 
-Este módulo implementa el reto **"Falla 4"**: un módulo de transferencias bancarias
-que **en su versión inicial tiene una lógica defectuosa a propósito**. El objetivo
-es que los aspirantes:
-
-1. Corran la aplicación y hagan una transferencia.
-2. Observen que los saldos quedan mal.
-3. Encuentren la sección del código con el error.
-4. La corrijan.
-5. Vuelvan a correr la app y repitan la transferencia.
-6. Evidencien que ahora los saldos y el registro de la transacción quedan correctos.
-
-No se agregó autenticación ni JWT: todos los endpoints están abiertos
-(ver [Seguridad](#seguridad)) porque el público de este reto no necesita lidiar
-con eso. Tampoco hay hilos, concurrencia ni paralelismo: todo es código
-secuencial sencillo.
-
-## Arquitectura (intencionalmente simple)
+## Arquitectura
 
 En vez de la separación clásica en capas (`config` / `controller` / `service` /
 `repository` / `dto` regados por todo el proyecto), todo el módulo vive en
