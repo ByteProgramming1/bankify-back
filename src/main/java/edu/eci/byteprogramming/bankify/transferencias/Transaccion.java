@@ -1,14 +1,9 @@
 package edu.eci.byteprogramming.bankify.transferencias;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.time.LocalDateTime;
 
-@Document(collection = "transacciones")
 public class Transaccion {
 
-    @Id
     private String id;
     private String cuentaOrigen;
     private String cuentaDestino;

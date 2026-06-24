@@ -7,33 +7,39 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 @Tag(name = "Transferencias", description = "Consulta de cuentas y transferencias entre cuentas")
 public class TransferenciaController {
 
-    private final CuentaRepository cuentaRepository;
-    private final TransaccionRepository transaccionRepository;
+    private final List<Cuenta> cuentas = new ArrayList<>();
+    private final List<Transaccion> transacciones = new ArrayList<>();
 
-    public TransferenciaController(CuentaRepository cuentaRepository, TransaccionRepository transaccionRepository) {
-        this.cuentaRepository = cuentaRepository;
-        this.transaccionRepository = transaccionRepository;
+    public TransferenciaController() {
+        cuentas.add(new Cuenta("1001", "Ana Perez", 1_000_000));
+        cuentas.add(new Cuenta("1002", "Carlos Gomez", 500_000));
     }
 
     @GetMapping("/cuentas")
     @Operation(summary = "Lista las cuentas existentes con su saldo actual")
     public List<Cuenta> listarCuentas() {
-        return cuentaRepository.findAll();
+        return cuentas;
+    }
+
+    public List<Transaccion> listarTransacciones() {
+        return transacciones;
     }
 
     @PostMapping("/transferencias")
     @Operation(summary = "Transfiere dinero de una cuenta origen a una cuenta destino")
     public Transaccion transferir(@RequestBody TransferenciaRequest request) {
-        Cuenta origen = cuentaRepository.findByNumeroCuenta(request.getCuentaOrigen())
+        Cuenta origen = buscarCuenta(request.getCuentaOrigen())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La cuenta origen no existe"));
-        Cuenta destino = cuentaRepository.findByNumeroCuenta(request.getCuentaDestino())
+        Cuenta destino = buscarCuenta(request.getCuentaDestino())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La cuenta destino no existe"));
 
         double monto = request.getMonto();
@@ -43,15 +49,19 @@ public class TransferenciaController {
 
         // Descuenta el monto de la cuenta origen
         origen.setSaldo(origen.getSaldo() + monto);
-        cuentaRepository.save(origen);
 
         // Acredita el monto en la cuenta destino
         origen.setSaldo(origen.getSaldo() + monto);
-        cuentaRepository.save(origen);
 
         Transaccion transaccion = new Transaccion(null, origen.getNumeroCuenta(), destino.getNumeroCuenta(),
                 monto, "PENDIENTE", LocalDateTime.now());
 
         return transaccion;
+    }
+
+    private Optional<Cuenta> buscarCuenta(String numeroCuenta) {
+        return cuentas.stream()
+                .filter(cuenta -> cuenta.getNumeroCuenta().equals(numeroCuenta))
+                .findFirst();
     }
 }
